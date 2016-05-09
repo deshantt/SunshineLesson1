@@ -8,3 +8,4 @@
 
     <!--step 1_ListviewWithFakeData
         So, this layout will create the view on a row for a list view
+        in this case, the listview just consist single textview for each row-->
