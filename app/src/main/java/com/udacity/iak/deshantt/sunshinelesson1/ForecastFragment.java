@@ -1,5 +1,6 @@
 package com.udacity.iak.deshantt.sunshinelesson1;
 
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -64,7 +65,10 @@ public class ForecastFragment extends Fragment {
             /*step 5_ConnectSunshineToTheCloud
             * execute the asynctask when refresh item selected*/
             FetchWeatherTask weatherTask = new FetchWeatherTask();
-            weatherTask.execute();
+
+            /*step 7_ConnectSunshineToTheCloud
+            * add input param postalcode*/
+            weatherTask.execute("94043,us");
 
             return true;
         }
@@ -121,12 +125,20 @@ public class ForecastFragment extends Fragment {
 
     /*step 2_ConnectSunshineToTheCloud
     * Create Inner Class that extends Asynctask*/
-    public class FetchWeatherTask extends AsyncTask<Void, Void, Void> {
+    /*step 7_ConnectSunshineToTheCloud
+    * change Asynctask param to be String, Void, Void & change Param in doInBackground with String*/
+    public class FetchWeatherTask extends AsyncTask<String, Void, Void> {
 
         private final String LOG_TAG = FetchWeatherTask.class.getSimpleName();
 
         @Override
-        protected Void doInBackground(Void... params) {
+        protected Void doInBackground(String... params) {
+            /*step 7_ConnectSunshineToTheCloud*/
+            // If there's no zip code, there's nothing to look up.  Verify size of params.
+            if (params.length == 0) {
+                return null;
+            }
+
             /*step 1_ConnectSunshineToTheCloud
             * add networking code using HTTPURLCONNECTION CLASS*/
             // These two need to be declared outside the try/catch
@@ -137,13 +149,43 @@ public class ForecastFragment extends Fragment {
             // Will contain the raw JSON response as a string.
             String forecastJsonStr = null;
 
+            /*step 7_ConnectSunshineToTheCloud
+            * add Variable for the input in URIBuilder*/
+            String format = "json";
+            String units = "metric";
+            int numDays = 7;
+
+
             try {
                 // Construct the URL for the OpenWeatherMap query
                 // Possible parameters are avaiable at OWM's forecast API page, at
                 // http://openweathermap.org/API#forecast
-                String baseUrl = "http://api.openweathermap.org/data/2.5/forecast/daily?q=94043,us&mode=json&units=metric&cnt=7";
-                String apiKey = "&APPID=" + BuildConfig.OPEN_WEATHER_MAP_API_KEY;
-                URL url = new URL(baseUrl.concat(apiKey));
+                /*step 7_ConnectSunshineToTheCloud
+                * add variable for the params in URIBuilder*/
+                final String FORECAST_BASE_URL = "http://api.openweathermap.org/data/2.5/forecast/daily?";
+                final String QUERY_PARAM = "q";
+                final String FORMAT_PARAM = "mode";
+                final String UNITS_PARAM = "units";
+                final String DAYS_PARAM = "cnt";
+                final String APPID_PARAM = "APPID";
+
+                /*step 7_ConnectSunshineToTheCloud
+                * create UriBuilder from the variable inputs & params already defined*/
+                Uri buildUri = Uri.parse(FORECAST_BASE_URL).buildUpon()
+                        .appendQueryParameter(QUERY_PARAM, params[0])
+                        .appendQueryParameter(FORMAT_PARAM, format)
+                        .appendQueryParameter(UNITS_PARAM, units)
+                        .appendQueryParameter(DAYS_PARAM, Integer.toString(numDays))
+                        .appendQueryParameter(APPID_PARAM, BuildConfig.OPEN_WEATHER_MAP_API_KEY)
+                        .build();
+
+                /*step 7_ConnectSunshineToTheCloud
+                * Create URL from the URIBuilder above
+                * to check it, Log verbose the url in the logcat*/
+                URL url = new URL(buildUri.toString());
+                // Log.v(LOG_TAG, "Build URI " + url.toString());
+                // Log.v(LOG_TAG, "Build URI " + buildUri.toString());
+                Log.v(LOG_TAG, "Build URI : " + String.valueOf(url));
 
                 // Create the request to OpenWeatherMap, and open the connection
                 urlConnection = (HttpURLConnection) url.openConnection();
