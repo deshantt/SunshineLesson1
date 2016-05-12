@@ -2,6 +2,10 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.udacity.iak.deshantt.sunshinelesson1">
 
+    <!-- step 6_ConnectSunshineToTheCloud - add internet permission
+    This permission is necessary in order for Sunshine to perform network access. -->
+    <uses-permission android:name="android.permission.INTERNET" />
+
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
